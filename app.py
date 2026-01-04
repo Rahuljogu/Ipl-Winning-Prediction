@@ -3,10 +3,19 @@ import streamlit as st
 import pickle as pkl 
 import pandas as pd 
 
-# having a wide page layout
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="IPL Win Predictor", layout="wide")
 
-# Title of the page
+st.markdown("""
+<style>
+h1 {
+    color: #ffffff;
+    text-align: center;
+    font-size: 48px;
+    font-weight: 800;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("IPL Win Predictor")
 
 # Importing data an model from pickel
@@ -36,6 +45,9 @@ with col6:
     wickets = st.number_input('Wickets Fell',min_value=0,max_value=10, step=1)
 
 if st.button('Predict Probabilities'):
+    if overs == 0:
+        st.error("Overs must be greater than 0")
+        st.stop()
     runs_left = target - score
     balls_left = 120 - (overs * 6)
     wickets = 10 - wickets
