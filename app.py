@@ -5,18 +5,64 @@ import pandas as pd
 
 st.set_page_config(page_title="IPL Win Predictor", layout="wide")
 
-st.markdown("""
-<style>
-h1 {
-    color: #ffffff;
-    text-align: center;
-    font-size: 48px;
-    font-weight: 800;
-}
-</style>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+    /* Main app background */
+    .stApp {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+    }
 
-st.title("IPL Win Predictor")
+    /* Main title */
+    h1 {
+        color: #ffffff !important;
+        text-align: center;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    /* Section headers */
+    h2, h3, h4{
+        color: #f9f9f9 !important;
+        font-weight: 700;
+    }
+
+    /* Labels */
+    label {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    /* Input boxes */
+    .stSelectbox div,
+    .stNumberInput div input {
+        border-radius: 8px;
+    }
+
+    /* Predict button */
+    div.stButton > button {
+        background: linear-gradient(90deg, #ff416c, #ff4b2b);
+        color: white;
+        border-radius: 12px;
+        height: 3em;
+        width: 100%;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+    }
+
+    div.stButton > button:hover {
+        background: linear-gradient(90deg, #ff4b2b, #ff416c);
+        transform: scale(1.02);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+st.title("IPL Winner Predictor")
 
 # Importing data and model from pickle
 teams = pkl.load(open('team.pkl','rb'))
@@ -43,16 +89,20 @@ with col4:
     score = st.number_input('Score', min_value=0, max_value=720, step=1)
 
 with col5:
-    overs = st.number_input('Overs Done', min_value=0.0, max_value=20.0, step=0.1)
+    overs = st.number_input('Overs Done', min_value=0, max_value=20, step=1)
 
 with col6: 
     wickets = st.number_input('Wickets Fell', min_value=0, max_value=10, step=1)
 
 if st.button('Predict Probabilities'):
 
-    if overs <= 0:
+    if overs == 0:
         st.error("Overs must be greater than 0")
         st.stop()
+    if batting_team == bowling_team:
+        st.error("Batting team and Bowling team cannot be the same")
+        st.stop()
+
 
     balls_left = 120 - int(overs * 6)
     target_left = target - score
@@ -73,9 +123,7 @@ if st.button('Predict Probabilities'):
     })
 
     result = model.predict_proba(input_df)
-
-    loss = round(result[0][0] * 100, 2)
-    win = round(result[0][1] * 100, 2)
-
-    st.success(f"🏏 {batting_team} Winning Probability: {win}%")
-    st.error(f"❌ {bowling_team} Winning Probability: {loss}%")
+    loss = result[0][0]
+    win = result[0][1] 
+    st.header(batting_team + " - " + str(round(win*100)) + "%")
+    st.header(bowling_team + " - " + str(round(loss*100)) + "%")
