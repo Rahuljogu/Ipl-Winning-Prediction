@@ -49,21 +49,23 @@ if st.button('Predict Probabilities'):
         st.error("Overs must be greater than 0")
         st.stop()
     runs_left = target - score
-    balls_left = 120 - (overs * 6)
-    wickets = 10 - wickets
-    crr = score/overs
-    rrr = (runs_left*6)/balls_left
+    balls_left = 120 - int(overs * 6)
+    target_left = target - score
 
-    input_df = pd.DataFrame({'batting_team':[batting_team], 
-                            'bowling_team':[bowling_team], 
-                            'city':[selected_city], 
-                            'Score':[score],
-                            'Wickets':[wickets],
-                            'Remaining Balls':[balls_left], 
-                            'target_left':[runs_left], 
-                            'crr':[crr], 
-                            'rrr':[rrr]
-                            })
+    crr = score / overs if overs > 0 else 0
+    rrr = target_left / (balls_left / 6) if balls_left > 0 else 0
+
+    input_df = pd.DataFrame({
+                        'batting_team': [batting_team],
+                        'bowling_team': [bowling_team],
+                        'city': [city],
+                        'Score': [score],
+                        'Wickets': [wickets],
+                        'Remaining Balls': [balls_left],
+                        'target_left': [target_left],
+                        'crr': [crr],
+                        'rrr': [rrr]
+                        })
     result = model.predict_proba(input_df)
     loss = result[0][0]
     win = result[0][1]
